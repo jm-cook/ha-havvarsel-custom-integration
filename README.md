@@ -67,7 +67,7 @@ it will most likely be retained. This may mean that old line sensors are still a
 removed them from the configuration. There is currently no automatic purge to remove previous configurations (but see below).
 
 ------------------------------------------
-If you should use a configuration that created a  sensor that you no longer need, the sensor will continue to exist even if you remove it from the ```lines_to_check``` configuration. This is due to
+If you should use a configuration that created a  sensor that you no longer need, the sensor will continue to exist even if you remove it from the configuration. This is due to
 message retention in the mosquitto broker. The current method to remove unwanted sensor is to access the mosquitto broker using MQTT Explorer (take a look here https://community.home-assistant.io/t/addon-mqtt-explorer-new-version/603739). If you connect MQTT Explorer to your broker, you can delete the unwanted topics there:
 
 ![image](https://github.com/user-attachments/assets/b0f9e176-149b-41f1-9038-f2b5f30b3bec)
