@@ -1,6 +1,6 @@
 Navigate to: [My smart home](https://github.com/jm-cook/my-smart-home/tree/main)
 # HA Havvarsel
-HA HAvvarsel is an AppDaemon app which will provide current sea temperature model data and prognosis from the Norwehian Institute for Marine Research 
+HA Havvarsel is an AppDaemon app which will provide current sea temperature model data and prognosis from the Norwegian Institute for Marine Research 
 (Havforskningsinstituttet).
 
 This standalone python app for AppDaemon will create a sensor for the sea temperature at 
