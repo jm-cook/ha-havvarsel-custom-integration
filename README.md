@@ -59,7 +59,8 @@ havvarsel_nordnes:
  - ```sensor_name``` will be the name of the sensor in your instance
  - ```unit_of_measurement``` is optional and overrides the units provided by the underlying rest service.
  
- When you save the ```app.yaml``` file in your configuration, AppDaemon will start the havvarsel app. 
+ When you save the ```app.yaml``` file in your configuration, AppDaemon will start the havvarsel app. You can add several configurations 
+ for different locations if you want more sensors.
 
 Note that the app script specifies that MQTT topics should be retained. This is to ensure continuity between restarts
 of HA (otherwise the sensors become unavailable). MQTT retention can be tricky, and if something goes wrong, or you want to remove a line/sensor, then 
