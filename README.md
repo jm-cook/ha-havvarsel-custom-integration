@@ -39,7 +39,7 @@ to upload the file yourself, or copy/paste using an editor.
 Then configure the app in the ```apps.yml``` file located in the AppDaemon apps folder. Similar to the following:
 
 ```yaml
-havvarsel_neshamn:
+havvarsel_nordnes:
   module: havvarsel
   class: HavvarselRest
   log_level: INFO
