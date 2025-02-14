@@ -33,8 +33,8 @@ for the specified location. A sensor is created by posting to a *create* topic o
 by posting to a topic that was specified in the *create* payload. The payloads are constructed so that your Home Assistant
 instance will auto-discover the sensor, and it will be available for display.
 
-Copy the files in the folder ```havvarsel``` to your appdaemon app folder. It will probably be in something like: ```/addon_configs/a0d7b954_appdaemon/apps```, you will need 
-to upload the file yourself, or copy/paste using an editor.
+Copy the files in the folder ```apps/havvarsel``` to your appdaemon app folder. It will probably be in something like: ```/addon_configs/a0d7b954_appdaemon/apps```, you can copy the whole folder and contents
+You will need to upload the file yourself, or copy/paste using an editor.
 
 Then configure the app in the ```apps.yml``` file located in the AppDaemon apps folder. Similar to the following:
 
