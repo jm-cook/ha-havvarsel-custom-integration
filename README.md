@@ -16,14 +16,17 @@ To install the codes you must follow these steps:
 1. install the mosquitto broker add on for home assistant. To do this go to the add-ons configuration section and select the mosquitto broker from the list of official addons.
 
    [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)](https://my.home-assistant.io/redirect/supervisor_store/)
+TEST:
+   [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)]<a href="https://my.home-assistant.io/redirect/supervisor_store/">LINK</a>
+
 
    Install mosquitto and configure it.
 
-2. You will need the MQTT integration from the integrations page:
+3. You will need the MQTT integration from the integrations page:
    
    [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt)
 
-3. Now install the appdaemon addon which is available form the addon store.
+4. Now install the appdaemon addon which is available form the addon store.
 
    [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)](https://my.home-assistant.io/redirect/supervisor_store/)
 
