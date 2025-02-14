@@ -16,9 +16,6 @@ To install the codes you must follow these steps:
 1. install the mosquitto broker add on for home assistant. To do this go to the add-ons configuration section and select the mosquitto broker from the list of official addons.
 
    [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)](https://my.home-assistant.io/redirect/supervisor_store/)
-TEST:
- <a href="https://my.home-assistant.io/redirect/supervisor_store/" target="_BLANK" foo="bar">LINK</a>
-
 
    Install mosquitto and configure it.
 
