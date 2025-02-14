@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: vimtor/action-zip@v1.2
+        id: create_zip
         with:
           files: apps/ 
           dest: havvarsel.zip
