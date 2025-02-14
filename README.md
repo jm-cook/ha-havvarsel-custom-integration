@@ -62,13 +62,106 @@ havvarsel_nordnes:
  When you save the ```app.yaml``` file in your configuration, AppDaemon will start the havvarsel app. You can add several configurations 
  for different locations if you want more sensors.
 
+For example to add a new location include the following, or similar, in addition to the above configuration:
+
+```yaml
+havvarsel_kyrketangen:
+  module: havvarsel
+  class: HavvarselRest
+  log_level: INFO
+  device: Havvarsel
+  manufacturer: IMR, Norway
+  longitude: 5.302686
+  latitude: 60.324667
+  sensor_name: Kyrketangen sea temperature
+  unit_of_measurement: °C
+```
+
 Note that the app script specifies that MQTT topics should be retained. This is to ensure continuity between restarts
 of HA (otherwise the sensors become unavailable). MQTT retention can be tricky, and if something goes wrong, or you want to remove a line/sensor, then 
 it will most likely be retained. This may mean that old line sensors are still available after you have 
 removed them from the configuration. There is currently no automatic purge to remove previous configurations (but see below).
 
+## Use
+
+The sensors created show the forecasted temperature at each location. The sensor includes the position of the 
+forecast, which means they can also be shown in HA on a map. The sensor includes the whole forecast 
+as an attribute giving the possibility to plot the forecast. 
+
+### Example view configuration
+
+
+![example_view.png](img/example_view.png)
+
+The example view shown here is configured using the yaml code below. To plot future 
+values from the forecast attribute, the custom apex charts card must be installed (https://github.com/RomRider/apexcharts-card)
+
+```yaml
+views:
+  - type: sections
+    max_columns: 2
+    title: Sea temperature demo
+    path: sea-temperature-demo
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Nordnes sjøbad
+            heading_style: title
+          - graph: line
+            type: sensor
+            entity: sensor.havvarsel_nordnes_sea_temperature
+            detail: 1
+            icon: mdi:swim
+            grid_options:
+              columns: full
+            name: Current sea temperature Nordnes sjøbad
+          - type: vertical-stack
+            cards:
+              - type: custom:apexcharts-card
+                experimental:
+                  disable_config_validation: true
+                grid_options:
+                  columns: full
+                  rows: 4
+                graph_span: 72h
+                span:
+                  offset: +60h
+                now:
+                  show: true
+                  label: Now
+                header:
+                  show: true
+                  show_states: true
+                series:
+                  - entity: sensor.havvarsel_nordnes_sea_temperature
+                    name: Temperature forecast
+                    stroke_width: 2
+                    decimals: 2
+                    show:
+                      in_header: false
+                      legend_value: false
+                    data_generator: |
+                      return entity.attributes.forecast.map((entry) => {
+                        return [new Date(entry.timestamp).getTime(), entry.temperature];
+                      });
+      - type: grid
+        cards:
+          - type: heading
+            heading: Map
+            heading_style: title
+          - type: map
+            entities:
+              - entity: sensor.havvarsel_nordnes_sea_temperature
+              - entity: sensor.havvarsel_kyrketangen_sea_temperature
+            theme_mode: auto
+            grid_options:
+              columns: full
+              rows: 8
+```
+
 ------------------------------------------
 If you should use a configuration that created a  sensor that you no longer need, the sensor will continue to exist even if you remove it from the configuration. This is due to
 message retention in the mosquitto broker. The current method to remove unwanted sensor is to access the mosquitto broker using MQTT Explorer (take a look here https://community.home-assistant.io/t/addon-mqtt-explorer-new-version/603739). If you connect MQTT Explorer to your broker, you can delete the unwanted topics there:
 
-![image](https://github.com/user-attachments/assets/b0f9e176-149b-41f1-9038-f2b5f30b3bec)
+![image](img/mqtt_explorer.png)
