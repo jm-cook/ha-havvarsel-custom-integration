@@ -11,10 +11,6 @@ complicated but installation *should* be straightforward and the solution gives 
 
 ## Installation
 
-<a href="https://my.home-assistant.io/redirect/supervisor_store/" target="_BLANK">
-TST
-</a>
-
 To install the codes you must follow these steps:
 
 1. install the mosquitto broker add on for home assistant. To do this go to the add-ons configuration section and select the mosquitto broker from the list of official addons.
