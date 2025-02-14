@@ -1,4 +1,9 @@
 Navigate to: [My smart home](https://github.com/jm-cook/my-smart-home/tree/main)
+
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
+[![GitHub Release](https://img.shields.io/github/release/jm-cook/ha-havvarsel.svg)](https://github.com/jm-cook/ha-havvarsel/releases)
+![Project Maintenance](https://img.shields.io/maintenance/yes/2025.svg)
+
 # HA Havvarsel
 HA Havvarsel is an AppDaemon app which will provide current sea temperature model data and prognosis from the Norwegian Institute for Marine Research 
 (Havforskningsinstituttet).
