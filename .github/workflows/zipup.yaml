@@ -17,7 +17,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: vimtor/action-zip@v1.2
         with:
-          name: havvarsel download
           files: apps/ 
           dest: havvarsel.zip
       - uses: actions/upload-artifact@v4
