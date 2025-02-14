@@ -19,19 +19,19 @@ To install the codes you must follow these steps:
 
    Install mosquitto and configure it.
 
-1. You will need the MQTT integration from the integrations page:
+2. You will need the MQTT integration from the integrations page:
    
    [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt)
 
-1. Now install the appdaemon addon which is available form the addon store.
+3. Now install the appdaemon addon which is available form the addon store.
 
    [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)](https://my.home-assistant.io/redirect/supervisor_store/)
 
 -----------------------------------------
 The script "havvarsel.py" is an app for AppDaemon that periodically fetches the current sea temperature
-for the specified location. A sensor is created by posting to a create topic on the MQTT server. The data is updated 
-by posting to a topic that was specified in the create payload. The payloads are constructed so that your Home Assistant
-instance will auto-discover the sensor and it will be available for display.
+for the specified location. A sensor is created by posting to a *create* topic on the MQTT server. The data is updated 
+by posting to a topic that was specified in the *create* payload. The payloads are constructed so that your Home Assistant
+instance will auto-discover the sensor, and it will be available for display.
 
 Copy the files in the folder ```havvarsel``` to your appdaemon app folder. It will probably be in something like: ```/addon_configs/a0d7b954_appdaemon/apps```, you will need 
 to upload the file yourself, or copy/paste using an editor.
