@@ -17,7 +17,7 @@ To install the codes you must follow these steps:
 
    [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)](https://my.home-assistant.io/redirect/supervisor_store/)
 TEST:
-   [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)]<a href="https://my.home-assistant.io/redirect/supervisor_store/">LINK</a>
+   [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)]<a href="https://my.home-assistant.io/redirect/supervisor_store/" target="_BLANK">LINK</a>
 
 
    Install mosquitto and configure it.
