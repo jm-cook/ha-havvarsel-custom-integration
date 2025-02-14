@@ -115,8 +115,8 @@ havvarsel_kyrketangen:
 ```
 
 Note that the app script specifies that MQTT topics should be retained. This is to ensure continuity between restarts
-of HA (otherwise the sensors become unavailable). MQTT retention can be tricky, and if something goes wrong, or you want to remove a line/sensor, then 
-it will most likely be retained. This may mean that old line sensors are still available after you have 
+of HA (otherwise the sensors become unavailable). MQTT retention can be tricky, and if something goes wrong, or you want to remove a sensor, then 
+it will most likely be retained. This may mean that old sensors are still available after you have 
 removed them from the configuration. There is currently no automatic purge to remove previous configurations (but see below).
 
 ## Use
