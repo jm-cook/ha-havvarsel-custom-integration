@@ -119,6 +119,13 @@ of HA (otherwise the sensors become unavailable). MQTT retention can be tricky, 
 it will most likely be retained. This may mean that old sensors are still available after you have 
 removed them from the configuration. There is currently no automatic purge to remove previous configurations (but see below).
 
+Once the app is upp and running you can go to the settings page for the MQTT integration where you should see similar to the
+following screenshot:
+
+![mqtt_integration.png](img/mqtt_integration.png)
+
+You can access and edit the sensors from here if you want to change the icon or the number of decimals to show.
+
 ## Use
 
 The sensors created show the forecasted temperature at each location. The sensor includes the position of the 
