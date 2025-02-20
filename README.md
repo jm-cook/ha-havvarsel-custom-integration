@@ -119,7 +119,7 @@ of HA (otherwise the sensors become unavailable). MQTT retention can be tricky, 
 it will most likely be retained. This may mean that old sensors are still available after you have 
 removed them from the configuration. There is currently no automatic purge to remove previous configurations (but see below).
 
-Once the app is upp and running you can go to the settings page for the MQTT integration where you should see similar to the
+Once the app is up and running you can go to the settings page for the MQTT integration where you should see similar to the
 following screenshot:
 
 ![mqtt_integration.png](img/mqtt_integration.png)
