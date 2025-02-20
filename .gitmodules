@@ -1,0 +1,3 @@
+[submodule "apps/havvarsel/mqtt-sensor-utils"]
+	path = apps/havvarsel/mqtt-sensor-utils
+	url = https://github.com/jm-cook/mqtt-sensor-utils.git
