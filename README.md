@@ -60,9 +60,6 @@ appdaemon may be a bit easier with the following pre-requisites:
 
 Once you have carried out the pre-requisites you can install and later upgrade ha havvarsel in HACS.
 
-Add HA Havvarsel as a custom appdaemon repository by adding the github repository https://github.com/jm-cook/ha-havvarsel
-to your HACS configuration (3-dot-menu -> custom repositories).
-
 Now you can open HACS on your system and search for "havvarsel", click on download to add it to your system and 
 configure apps.yaml using the instructions below.
 
