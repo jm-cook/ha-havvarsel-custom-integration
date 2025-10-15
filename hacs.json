@@ -1,4 +1,6 @@
 {
-    "name": "havvarsel",
-    "country": "NO"
+  "name": "Havvarsel",
+  "country": "NO",
+  "render_readme": true,
+  "domains": ["sensor"]
 }

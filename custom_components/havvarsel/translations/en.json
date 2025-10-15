@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Havvarsel",
+        "description": "Configure your Havvarsel sea temperature sensor",
+        "data": {
+          "sensor_name": "Sensor Name",
+          "longitude": "Longitude",
+          "latitude": "Latitude",
+          "depth": "Depth (meters)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Havvarsel API. Please check your coordinates and try again."
+    },
+    "abort": {
+      "already_configured": "A sensor for this location and depth is already configured"
+    }
+  }
+}

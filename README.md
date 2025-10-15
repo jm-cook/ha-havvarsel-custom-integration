@@ -1,136 +1,70 @@
 Navigate to: [My smart home](https://github.com/jm-cook/my-smart-home/tree/main)
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/jm-cook/ha-havvarsel)
-[![Validate with HACS](https://github.com/jm-cook/ha-havvarsel/actions/workflows/validate.yaml/badge.svg)](https://github.com/jm-cook/ha-havvarsel/actions/workflows/validate.yaml)
-[![GitHub Release](https://img.shields.io/github/release/jm-cook/ha-havvarsel.svg)](https://github.com/jm-cook/ha-havvarsel/releases)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/jm-cook/ha-havvarsel-custom-integration)
+[![Validate with HACS](https://github.com/jm-cook/ha-havvarsel-custom-integration/actions/workflows/validate.yaml/badge.svg)](https://github.com/jm-cook/ha-havvarsel-custom-integration/actions/workflows/validate.yaml)
+[![GitHub Release](https://img.shields.io/github/release/jm-cook/ha-havvarsel-custom-integration.svg)](https://github.com/jm-cook/ha-havvarsel-custom-integration/releases)
 ![Project Maintenance](https://img.shields.io/maintenance/yes/2025.svg)
 
-# HA Havvarsel
-HA Havvarsel is an AppDaemon app which will provide current sea temperature model data and prognosis from the Norwegian Institute for Marine Research 
-(Havforskningsinstituttet).
+# HA Havvarsel Custom Integration
+HA Havvarsel is a Home Assistant custom integration that provides current sea temperature model data and forecasts from the Norwegian Institute for Marine Research (Havforskningsinstituttet).
 
-This standalone python app for AppDaemon will create a sensor for the sea temperature at 
-the specified location. 
-To use it you will use the Home Assistant addons appdaemon and mqtt and install this python app
-for appdaemon. This method may initially seem 
-complicated but installation *should* be straightforward and the solution gives the best results out of all the methods that I tried.
+This custom integration creates sensors for sea temperature at specified locations along the Norwegian coast. It integrates directly with Home Assistant without requiring AppDaemon or MQTT.
 
 ## Installation
 
-To install the codes you must follow these steps:
+### Installation with HACS (Recommended)
 
-1. install the mosquitto broker add on for home assistant. To do this go to the add-ons configuration section and select the mosquitto broker from the list of official addons.
+1. Open HACS in your Home Assistant instance
+2. Click on "Integrations"
+3. Click the three dots in the top right corner
+4. Select "Custom repositories"
+5. Add the URL: `https://github.com/jm-cook/ha-havvarsel-custom-integration`
+6. Select category: "Integration"
+7. Click "Add"
+8. Search for "Havvarsel" in HACS
+9. Click "Download"
+10. Restart Home Assistant
 
-   [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)](https://my.home-assistant.io/redirect/supervisor_store/)
+### Manual Installation
 
-   Install mosquitto and configure it.
+1. Copy the `custom_components/havvarsel` folder to your Home Assistant `custom_components` directory
+2. Restart Home Assistant
 
-3. You will need the MQTT integration from the integrations page:
-   
-   [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt)
+## Configuration
 
-4. Now install the appdaemon addon which is available from the addon store.
+After installation, add the integration through the Home Assistant UI:
 
-   [![Open your Home Assistant instance and show the add-on store.](https://my.home-assistant.io/badges/supervisor_store.svg)](https://my.home-assistant.io/redirect/supervisor_store/)
+1. Go to **Settings** → **Devices & Services**
+2. Click **+ Add Integration**
+3. Search for "Havvarsel"
+4. Follow the configuration steps:
+   - **Sensor Name**: A descriptive name for your sensor (e.g., "Nordnes Sea Temperature")
+   - **Longitude**: The longitude of your desired location (e.g., 5.302337)
+   - **Latitude**: The latitude of your desired location (e.g., 60.398942)
+   - **Depth**: The depth in meters (default: 0 for surface temperature)
 
------------------------------------------
-The script "havvarsel.py" is an app for AppDaemon that periodically fetches the current sea temperature
-for the specified location. A sensor is created by posting to a *create* topic on the MQTT server. The data is updated 
-by posting to a topic that was specified in the *create* payload. The payloads are constructed so that your Home Assistant
-instance will auto-discover the sensor, and it will be available for display.
-
-## Installation with HACS
-
-If you are using HACS, this may be the best method for you, but using HACS with 
-appdaemon may be a bit easier with the following pre-requisites:
-
-1. In settings for the HACS integration, enable appdaemon discovery:
-
-    ![hacs_settings.png](img/hacs_settings.png)
-
-2. In your appdaemon configuration make the following change:
-   - Point appdaemon to use the same folder that HACS downloads apps to, instead of the default used by appdaemon. 
-     Be aware though that when creating a backup, your appdaemon apps will then be backed up with home assistant and not with appdaemon.
-   - in a terminal window `cd /addon_configs/a0d7b954_appdaemon/`
-   - edit `appdaemon.yaml` to include `app_dir: /homeassistant/appdaemon/apps`
-
-      ![app-daemon-config.png](img/app-daemon-config.png)
-   - be sure to move any existing apps and `apps.yaml` into the Home Assistant folder `/homeassistant/appdaemon/apps`
-   - Restart appdaemon, now you're all set to use appdaemon and HACS in harmony.
-
-Once you have carried out the pre-requisites you can install and later upgrade ha havvarsel in HACS.
-
-Now you can open HACS on your system and search for "havvarsel", click on download to add it to your system and 
-configure apps.yaml using the instructions below.
-
-## Manual installation
-
-Copy the files in the folder ```apps/havvarsel``` to your appdaemon app folder. It will probably be in something like: ```/addon_configs/a0d7b954_appdaemon/apps```, you can copy the whole folder and contents
-You will need to upload the file yourself, or copy/paste using an editor.
-
-## Configure apps.yaml
-
-Then configure the app in the ```apps.yml``` file located in the AppDaemon apps folder. Similar to the following:
-
-```yaml
-havvarsel_nordnes:
-  module: havvarsel
-  class: HavvarselRest
-  log_level: INFO
-  device: Havvarsel
-  manufacturer: IMR, Norway
-  longitude: 5.302337
-  latitude: 60.398942
-  sensor_name: Nordnes sea temperature
-  unit_of_measurement: °C
-```
-
- - ```module```, and ```class``` are mandatory and must be written as shown
- - ```log_level``` can be INFO or DEBUG and is optional
- - ```device``` is the name your HA device wil get
- - ```manufacturer``` is optional and displayed for the device to show the data provider
- - ```longitude``` and ```latitude``` are the location on the Norwegian coast where you want the forecast from
- - ```sensor_name``` will be the name of the sensor in your instance
- - ```unit_of_measurement``` is optional and overrides the units provided by the underlying rest service.
- 
- When you save the ```app.yaml``` file in your configuration, AppDaemon will start the havvarsel app. You can add several configurations 
- for different locations if you want more sensors.
-
-For example to add a new location include the following, or similar, in addition to the above configuration:
-
-```yaml
-havvarsel_kyrketangen:
-  module: havvarsel
-  class: HavvarselRest
-  log_level: INFO
-  device: Havvarsel
-  manufacturer: IMR, Norway
-  longitude: 5.302686
-  latitude: 60.324667
-  sensor_name: Kyrketangen sea temperature
-  unit_of_measurement: °C
-```
-
-Note that the app script specifies that MQTT topics should be retained. This is to ensure continuity between restarts
-of HA (otherwise the sensors become unavailable). MQTT retention can be tricky, and if something goes wrong, or you want to remove a sensor, then 
-it will most likely be retained. This may mean that old sensors are still available after you have 
-removed them from the configuration. There is currently no automatic purge to remove previous configurations (but see below).
-
-Once the app is up and running you can go to the settings page for the MQTT integration where you should see similar to the
-following screenshot:
-
-![mqtt_integration.png](img/mqtt_integration.png)
-
-You can access and edit the sensors from here if you want to change the icon or the number of decimals to show.
+You can add multiple sensors for different locations by repeating the process.
 
 ## Use
 
-The sensors created show the forecasted temperature at each location. The sensor includes the position of the 
-forecast, which means they can also be shown in HA on a map. The sensor includes the whole forecast 
-as an attribute giving the possibility to plot the forecast. 
+The sensors created show the current temperature and forecast at each location. Each sensor includes:
+
+- **Current temperature**: The sea temperature at the specified location and depth
+- **Location data**: Coordinates of your location and the nearest grid point
+- **Forecast data**: Temperature forecast as an attribute for plotting
+
+The sensors can be displayed on maps and in various cards.
+
+## Features
+
+- 🌊 Current sea temperature at specified locations along the Norwegian coast
+- 📊 Temperature forecast data stored as attributes
+- 🗺️ Location information (your coordinates and nearest grid point)
+- ♻️ Automatic updates every 10 minutes
+- 🔄 Config flow UI for easy setup
+- 📍 Support for multiple locations and depths
 
 ### Example view configuration
-
 
 ![example_view.png](img/example_view.png)
 
@@ -151,7 +85,7 @@ views:
             heading_style: title
           - graph: line
             type: sensor
-            entity: sensor.havvarsel_nordnes_sea_temperature
+            entity: sensor.nordnes_sea_temperature
             detail: 1
             icon: mdi:swim
             grid_options:
@@ -175,7 +109,7 @@ views:
                   show: true
                   show_states: true
                 series:
-                  - entity: sensor.havvarsel_nordnes_sea_temperature
+                  - entity: sensor.nordnes_sea_temperature
                     name: Temperature forecast
                     stroke_width: 2
                     decimals: 2
@@ -193,16 +127,14 @@ views:
             heading_style: title
           - type: map
             entities:
-              - entity: sensor.havvarsel_nordnes_sea_temperature
-              - entity: sensor.havvarsel_kyrketangen_sea_temperature
+              - entity: sensor.nordnes_sea_temperature
+              - entity: sensor.kyrketangen_sea_temperature
             theme_mode: auto
             grid_options:
               columns: full
               rows: 8
 ```
 
-------------------------------------------
-If you should use a configuration that created a  sensor that you no longer need, the sensor will continue to exist even if you remove it from the configuration. This is due to
-message retention in the mosquitto broker. The current method to remove unwanted sensor is to access the mosquitto broker using MQTT Explorer (take a look here https://community.home-assistant.io/t/addon-mqtt-explorer-new-version/603739). If you connect MQTT Explorer to your broker, you can delete the unwanted topics there:
+## Removing Sensors
 
-![image](img/mqtt_explorer.png)
+To remove a sensor, simply delete the integration from **Settings** → **Devices & Services** → **Havvarsel** → (select the device) → **Delete**.
