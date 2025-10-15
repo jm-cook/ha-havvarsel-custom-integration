@@ -46,7 +46,8 @@ class HavvarselDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from API."""
         try:
-            data = await self.api.async_get_temperature_data()
+            data = await self.api.async_get_projection()
+            # data: { 'variables': { varname: {...}}, 'nearest_grid': {...}, 'longitude':..., 'latitude':... }
             return data
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
