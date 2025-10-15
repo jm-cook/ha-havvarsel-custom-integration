@@ -63,3 +63,4 @@ home-assistant_v2.db
 
 # Old AppDaemon files (keeping for reference)
 apps/
+custom_components/havvarsel.zip
