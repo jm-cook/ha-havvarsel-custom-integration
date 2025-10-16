@@ -17,8 +17,10 @@ from .api import HavvarselApiClient
 from .const import (
     CONF_DEPTH,
     CONF_SENSOR_NAME,
+    CONF_VARIABLES,
     DEFAULT_DEPTH,
     DEFAULT_SENSOR_NAME,
+    DEFAULT_VARIABLES,
     DOMAIN,
 )
 
@@ -73,6 +75,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    def __init__(self) -> None:
+        """Initialize the config flow."""
+        self._data: dict[str, Any] = {}
+        self._available_variables: dict[str, str] = {}  # {var_name: description}
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
@@ -90,9 +97,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception:
             default_lon = None
 
+        # Use HA's location name as default sensor name
+        default_name = self.hass.config.location_name or DEFAULT_SENSOR_NAME
+
         data_schema = vol.Schema(
             {
-                vol.Required(CONF_SENSOR_NAME, default=DEFAULT_SENSOR_NAME): cv.string,
+                vol.Required(CONF_SENSOR_NAME, default=default_name): cv.string,
                 vol.Required(CONF_LONGITUDE, default=default_lon): cv.longitude,
                 vol.Required(CONF_LATITUDE, default=default_lat): cv.latitude,
                 vol.Optional(CONF_DEPTH, default=DEFAULT_DEPTH): cv.positive_int,
@@ -132,44 +142,68 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 unique_id = f"{store_lat}_{store_lon}_{user_input.get(CONF_DEPTH, DEFAULT_DEPTH)}"
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
-                data = {
+
+                # Store data - no variable selection needed, will create all sensors
+                self._data = {
                     **user_input,
                     "slug": slug,
                     CONF_LATITUDE: store_lat,
                     CONF_LONGITUDE: store_lon,
                 }
-
-                # If we used a different nearest grid point than the user provided,
-                # create a non-blocking informational notification so the user knows.
-                try:
-                    provided_lat = float(user_input.get(CONF_LATITUDE))
-                    provided_lon = float(user_input.get(CONF_LONGITUDE))
-                except Exception:
-                    provided_lat = provided_lon = None
-
-                try:
-                    if nearest and (provided_lat is not None and provided_lon is not None):
-                        # Only notify if the nearest grid differs from the provided coords
-                        if (abs(float(store_lat) - provided_lat) > 1e-6) or (abs(float(store_lon) - provided_lon) > 1e-6):
+                
+                # Notification about nearest grid point
+                if nearest:
+                    try:
+                        provided_lat = float(user_input.get(CONF_LATITUDE))
+                        provided_lon = float(user_input.get(CONF_LONGITUDE))
+                        
+                        # Calculate distance to see if grid point differs
+                        lat_diff = abs(float(store_lat) - provided_lat)
+                        lon_diff = abs(float(store_lon) - provided_lon)
+                        coords_differ = (lat_diff > 0.001) or (lon_diff > 0.001)
+                        
+                        if coords_differ:
                             msg = (
-                                f"Havvarsel: Using nearest grid point for ({user_input.get(CONF_SENSOR_NAME)}).\n"
-                                f"Requested coords: lat={provided_lat}, lon={provided_lon}\n"
-                                f"Nearest grid point used: lat={store_lat}, lon={store_lon}\n"
-                                "You can change the coordinates later in the device settings if desired."
+                                f"Havvarsel adjusted coordinates for '{user_input.get(CONF_SENSOR_NAME)}':\n\n"
+                                f"Requested: {provided_lat:.4f}°, {provided_lon:.4f}°\n"
+                                f"Nearest grid point: {store_lat:.4f}°, {store_lon:.4f}°\n\n"
+                                "The integration will use the nearest available grid point with data."
                             )
-                            # Fire a persistent notification (non-blocking)
+                            _LOGGER.info(
+                                "Havvarsel: Using nearest grid point (%.4f, %.4f) instead of requested (%.4f, %.4f)",
+                                store_lat, store_lon, provided_lat, provided_lon
+                            )
+                        else:
+                            msg = (
+                                f"Havvarsel configured for '{user_input.get(CONF_SENSOR_NAME)}':\n\n"
+                                f"Grid point: {store_lat:.4f}°, {store_lon:.4f}°\n\n"
+                                "Using nearest available grid point with data."
+                            )
+                            _LOGGER.info(
+                                "Havvarsel: Configured at grid point (%.4f, %.4f)",
+                                store_lat, store_lon
+                            )
+                        
+                        # Always show notification when grid point is determined
+                        self.hass.async_create_task(
                             self.hass.services.async_call(
                                 "persistent_notification",
                                 "create",
                                 {
-                                    "title": "Havvarsel: Nearest grid point used",
+                                    "title": "Havvarsel Configuration",
                                     "message": msg,
+                                    "notification_id": f"havvarsel_grid_{slug}",
                                 },
                             )
-                except Exception:  # Don't let notification failures block the flow
-                    _LOGGER.debug("Failed to create persistent notification for nearest grid point", exc_info=True)
+                        )
+                    except Exception:
+                        _LOGGER.debug("Failed to create grid point notification", exc_info=True)
 
-                return self.async_create_entry(title=info["title"], data=data)
+                # Create entry immediately without variable selection step
+                return self.async_create_entry(
+                    title=user_input.get(CONF_SENSOR_NAME, "Havvarsel"),
+                    data=self._data,
+                )
 
         return self.async_show_form(
             step_id="user",

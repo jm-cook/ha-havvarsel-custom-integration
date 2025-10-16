@@ -10,10 +10,18 @@
           "latitude": "Latitude",
           "depth": "Depth (meters)"
         }
+      },
+      "variables": {
+        "title": "Select Variables",
+        "description": "Select the ocean variables you want to monitor. {available_count} variables are available at this location. Temperature is always included and cannot be deselected.",
+        "data": {
+          "variables": "Select variables (temperature is required)"
+        }
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to Havvarsel API. Please check your coordinates and try again."
+      "cannot_connect": "Failed to connect to Havvarsel API. Please check your coordinates and try again.",
+      "no_variables_selected": "Please select at least one variable to track."
     },
     "abort": {
       "already_configured": "A sensor for this location and depth is already configured"

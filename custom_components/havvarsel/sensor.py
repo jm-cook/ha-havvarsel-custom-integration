@@ -17,7 +17,7 @@ from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_SENSOR_NAME, DEFAULT_SENSOR_NAME, DOMAIN
+from .const import CONF_SENSOR_NAME, CONF_VARIABLES, DEFAULT_SENSOR_NAME, DEFAULT_VARIABLES, DOMAIN
 from .coordinator import HavvarselDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,43 +31,36 @@ async def async_setup_entry(
     """Set up the Havvarsel sensor."""
     coordinator: HavvarselDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    # Create one entity per available variable. The coordinator's data will
-    # contain 'variables' mapping after the first refresh. We register a
-    # sensor entity for each variable; temperature sensor is enabled by
-    # default, others are created disabled so the user can enable them
-    # in the integration options.
+    # Fetch all available variables from API with metadata
+    try:
+        available_variables_dict = await coordinator.api.async_get_available_variables()
+        _LOGGER.debug("Found %d available variables to create sensors for", len(available_variables_dict))
+        
+        # Also fetch full metadata to get standard_name for entity IDs
+        metadata_dict = await coordinator.api.async_get_variables_metadata()
+    except Exception:
+        _LOGGER.exception("Failed to fetch available variables, using temperature only")
+        available_variables_dict = {"temperature": "Sea water potential temperature"}
+        metadata_dict = {}
+    
     entities: list[HavvarselVariableSensor] = []
-
-    # If coordinator already has data, instantiate sensors; otherwise create
-    # a placeholder temperature sensor which will become available after first update.
-    variables = coordinator.data.get("variables") if coordinator.data else None
-    if variables:
-        for varname in variables:
-            entities.append(HavvarselVariableSensor(coordinator, entry, varname))
-        _LOGGER.debug(
-            "Havvarsel: creating sensors for variables: %s",
-            ", ".join(list(variables.keys())),
-        )
-    else:
-        # Create a temperature sensor as placeholder; after first update the
-        # platform will be unloaded and reloaded with all available variables.
-        entities.append(HavvarselVariableSensor(coordinator, entry, "temperature"))
-        _LOGGER.debug(
-            "Havvarsel: coordinator had no variables yet; created placeholder temperature sensor"
-        )
+    
+    # Create sensors for ALL available variables
+    # Temperature will be enabled by default, others disabled
+    for varname in available_variables_dict.keys():
+        sensor = HavvarselVariableSensor(coordinator, entry, varname, metadata_dict.get(varname, []))
+        # Only temperature is enabled by default
+        if varname != "temperature":
+            sensor._attr_entity_registry_enabled_default = False
+        entities.append(sensor)
+    
+    _LOGGER.info(
+        "Havvarsel: created %d sensors (%d enabled by default)",
+        len(entities),
+        sum(1 for e in entities if getattr(e, "_attr_entity_registry_enabled_default", True))
+    )
 
     async_add_entities(entities, False)
-    # Log which entities are created and their default enabled state
-    try:
-        for ent in entities:
-            default_enabled = getattr(ent, "_attr_entity_registry_enabled_default", True)
-            _LOGGER.debug(
-                "Havvarsel: added entity for variable '%s' (enabled_by_default=%s)",
-                getattr(ent, 'variable_name', 'temperature'),
-                default_enabled,
-            )
-    except Exception:
-        _LOGGER.debug("Havvarsel: failed to log entities added", exc_info=True)
 
 
 class HavvarselVariableSensor(
@@ -82,10 +75,12 @@ class HavvarselVariableSensor(
         coordinator: HavvarselDataUpdateCoordinator,
         entry: ConfigEntry,
         variable_name: str,
+        metadata: list[dict[str, str]] | None = None,
     ) -> None:
         """Initialize the sensor for a variable (e.g. temperature)."""
         super().__init__(coordinator)
         self.variable_name = variable_name
+        self._metadata_cache = metadata or []  # Cache metadata for entity naming
 
         sensor_name = entry.data.get(CONF_SENSOR_NAME, DEFAULT_SENSOR_NAME)
         slug = entry.data.get("slug") or sensor_name.replace(" ", "_").lower()
@@ -94,7 +89,33 @@ class HavvarselVariableSensor(
         self._attr_unique_id = f"{slug}_{entry.entry_id}_{variable_name}"
 
         # Device is the location, entity name is the measurement type
-        self._attr_name = variable_name.replace("_", " ").capitalize()
+        # Extract standard_name and long_name from metadata
+        standard_name = None
+        long_name = None
+        for meta in self._metadata_cache:
+            if isinstance(meta, dict):
+                if meta.get("key") == "standard_name":
+                    standard_name = meta.get("value")
+                elif meta.get("key") == "long_name":
+                    long_name = meta.get("value")
+        
+        # Use long_name for display (friendly name shown in UI)
+        # Falls back to standard_name or variable_name if not available
+        if long_name:
+            self._attr_name = long_name
+        elif standard_name:
+            # If no long_name, format standard_name nicely
+            self._attr_name = standard_name.replace("_", " ").title()
+        else:
+            # Final fallback to variable name
+            self._attr_name = variable_name.replace("_", " ").title()
+        
+        # Store standard_name for entity_id generation (HA will slugify this)
+        self._standard_name = standard_name
+        
+        # Cache for units to avoid repeated lookups and logging
+        self._cached_units = None
+        self._units_logged = False
 
         # Device info
         self._attr_device_info = DeviceInfo(
@@ -105,21 +126,34 @@ class HavvarselVariableSensor(
             configuration_url="https://api.havvarsel.no",
         )
 
-        # By default only temperature will be enabled; others are created disabled
-        if variable_name != "temperature":
-            self._attr_entity_registry_enabled_default = False
+        # State class for numeric measurements
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        # Device class will be set dynamically based on metadata (see device_class property)
 
-        # Device class for temperature and state class for numeric measurements
-        if variable_name == "temperature":
-            self._attr_device_class = SensorDeviceClass.TEMPERATURE
-            self._attr_state_class = SensorStateClass.MEASUREMENT
+    @property
+    def device_class(self) -> SensorDeviceClass | None:
+        """Return the device class based on variable type and available metadata."""
+        # Only set device class if we have proper units from the API
+        data = self.coordinator.data
+        if not data:
+            return None
 
-        else:
-            # Default to MEASUREMENT for other numeric variables
-            self._attr_state_class = SensorStateClass.MEASUREMENT
+        variables = data.get("variables", {})
+        var = variables.get(self.variable_name)
+        if not var:
+            return None
 
-        # Do not set static native unit here; we will determine it dynamically
-        # from the API metadata via the native_unit_of_measurement property.
+        # Check metadata for units to ensure proper device class assignment
+        metadata = var.get("metadata", [])
+        for meta in metadata:
+            if meta.get("key") == "units":
+                units = meta.get("value", "").strip().lower()
+                # Only set TEMPERATURE device class if we have temperature units
+                if self.variable_name == "temperature" and units in ("celsius", "°c", "c"):
+                    return SensorDeviceClass.TEMPERATURE
+                break
+        
+        return None
 
     @property
     def native_value(self) -> float | None:
@@ -138,44 +172,44 @@ class HavvarselVariableSensor(
     @property
     def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement for this variable based on API metadata."""
-        data = self.coordinator.data
-        if not data:
-            return None
-
-        variables = data.get("variables", {})
-        var = variables.get(self.variable_name)
-        if not var:
-            return None
-
-        # metadata is a list of dicts with keys 'key' and 'value'
-        metadata = var.get("metadata", [])
+        # Return cached value if already determined
+        if self._cached_units is not None or self._units_logged:
+            return self._cached_units
+        
+        # Get units from cached metadata
         units = None
-        for meta in metadata:
-            if meta.get("key") == "units":
+        for meta in self._metadata_cache:
+            if isinstance(meta, dict) and meta.get("key") == "units":
                 units = meta.get("value")
                 break
 
         if not units:
             # No units provided
+            self._units_logged = True  # Don't check again
             return None
 
         # Normalize and map API unit strings to HA unit constants
         u = str(units).strip().lower()
 
         # Common mappings
-        if u in ("°c", "c", "celsius", "degc") or "c" == u:
-            return UnitOfTemperature.CELSIUS
-        if u in ("m", "meter", "metre", "meters", "metres"):
-            return UnitOfLength.METERS
-        if u in ("m/s", "m s-1", "ms-1") or "/s" in u:
-            return UnitOfSpeed.METERS_PER_SECOND
-
-        # Fall back to raw units string if no mapping exists (HA expects standard units; unknown units will be left unset)
-        return None
+        if u in ("°c", "c", "celsius", "degc"):
+            self._cached_units = UnitOfTemperature.CELSIUS
+        elif u in ("m", "meter", "metre", "meters", "metres"):
+            self._cached_units = UnitOfLength.METERS
+        elif u in ("m/s", "m s-1", "ms-1", "meter second-1"):
+            self._cached_units = UnitOfSpeed.METERS_PER_SECOND
+        else:
+            # Return raw units string if no mapping exists
+            # This allows HA to display the units as-is from the API
+            self._cached_units = str(units)
+            _LOGGER.debug("Using raw units string for %s: %s", self.variable_name, units)
+        
+        self._units_logged = True
+        return self._cached_units
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        """Return attributes including the forecast series and location info."""
+        """Return attributes including the time series data and location info."""
         data = self.coordinator.data
         if not data:
             return None
@@ -192,6 +226,10 @@ class HavvarselVariableSensor(
             "latitude": data.get("latitude"),
             "nearest_grid": data.get("nearest_grid"),
         }
+        
+        # Add standard_name if available for reference
+        if self._standard_name:
+            attrs["standard_name"] = self._standard_name
 
         return attrs
 
