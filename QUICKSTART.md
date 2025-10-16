@@ -17,24 +17,36 @@
 1. Copy `custom_components/havvarsel` to your `config/custom_components/` folder
 2. Restart Home Assistant
 
-### Step 2: Add Your First Sensor
+### Step 2: Add Your First Location
 
 1. Go to: **Settings** → **Devices & Services**
 2. Click **+ Add Integration**
 3. Search for "Havvarsel"
 4. Fill in the form:
-   - **Sensor Name**: e.g., "Nordnes Sea Temperature"
+   - **Sensor Name**: e.g., "Home" (this names your location)
    - **Longitude**: e.g., `5.302337`
    - **Latitude**: e.g., `60.398942`
    - **Depth**: `0` (for surface) or other depth in meters
 5. Click **Submit**
 
-### Step 3: View Your Sensor
+The integration will create 13 sensors for different oceanographic variables. Only the temperature sensor is enabled by default.
 
-Your sensor will appear as:
-- Entity: `sensor.nordnes_sea_temperature` (based on your name)
-- State: Current temperature in °C
-- Attributes: Forecast data, coordinates, timestamp
+### Step 3: View Your Sensors
+
+Your sensors will appear as:
+- Entity: `sensor.havvarsel_home_sea_water_potential_temperature`
+- State: Current value (e.g., temperature in °C)
+- Attributes: 
+  - `series`: Time series data with `timestamp` and `value` pairs
+  - `metadata`: Variable information (units, standard names, etc.)
+  - `longitude`, `latitude`: Your requested location
+  - `nearest_grid`: Actual grid point used by the API
+
+### Step 4: Enable Additional Sensors (Optional)
+
+1. Go to: **Settings** → **Devices & Services** → **Havvarsel**
+2. Click on your location device
+3. Enable the sensors you want (salinity, currents, wave height, etc.)
 
 ## For Developers
 
@@ -80,33 +92,54 @@ custom_components/havvarsel/
 ### Basic Temperature Display
 ```yaml
 type: sensor
-entity: sensor.nordnes_sea_temperature
+entity: sensor.havvarsel_home_sea_water_potential_temperature
 graph: line
 detail: 1
 ```
 
-### Temperature Forecast Chart (requires ApexCharts)
+### Temperature Time Series Chart (requires ApexCharts)
 ```yaml
 type: custom:apexcharts-card
 graph_span: 72h
+span:
+  offset: +60h
+now:
+  show: true
+  label: Now
 header:
   show: true
-  title: Sea Temperature Forecast
+  show_states: true
+apex_config:
+  stroke:
+    curve: smooth
+yaxis:
+  - id: temp
+    decimals: 1
 series:
-  - entity: sensor.nordnes_sea_temperature
+  - entity: sensor.havvarsel_home_sea_water_potential_temperature
+    yaxis_id: temp
     name: Temperature
     data_generator: |
-      return entity.attributes.forecast.map((entry) => {
-        return [new Date(entry.timestamp).getTime(), entry.temperature];
+      return entity.attributes.series.map((entry) => {
+        return [new Date(entry.timestamp).getTime(), entry.value];
+      });
+  - entity: sensor.havvarsel_home_sea_water_potential_temperature
+    yaxis_id: temp
+    name: Trend (24h avg)
+    group_by:
+      duration: 24h
+      func: avg
+    data_generator: |
+      return entity.attributes.series.map((entry) => {
+        return [new Date(entry.timestamp).getTime(), entry.value];
       });
 ```
 
-### Map with Multiple Sensors
+### Map with Sensors
 ```yaml
 type: map
 entities:
-  - entity: sensor.nordnes_sea_temperature
-  - entity: sensor.another_location
+  - entity: sensor.havvarsel_home_sea_water_potential_temperature
 default_zoom: 12
 ```
 
@@ -126,12 +159,19 @@ default_zoom: 12
 - Wait 10 minutes for first update
 - Check Home Assistant logs
 - Verify API is accessible
+- Ensure at least one sensor is enabled for the location
+
+### Want more variables?
+- Go to **Settings** → **Devices & Services** → **Havvarsel**
+- Click on your location device
+- Enable additional sensors (salinity, currents, waves, etc.)
 
 ## Next Steps
 
-- Add multiple sensors for different locations
-- Create beautiful dashboards with forecast charts
-- Set up automations based on temperature
+- Add multiple locations with different names
+- Enable additional oceanographic variables (salinity, currents, waves)
+- Create beautiful dashboards with time series charts
+- Set up automations based on temperature or other variables
 - Share your configuration with the community!
 
 ## Need Help?

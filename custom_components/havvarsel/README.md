@@ -26,8 +26,9 @@ To test this integration:
 
 The integration uses the Havvarsel API from the Norwegian Institute for Marine Research:
 - Base URL: https://api.havvarsel.no/apis/duapi/havvarsel/v2/
-- Temperature projection: `/temperatureprojection/{lon}/{lat}?depth={depth}`
-- Variables metadata: `/variables`
+- Data projection: `/dataprojection/{variables}/{lon}/{lat}?depth={depth}`
+- Variables metadata: `/dataprojectionvariables`
+- Temperature projection (legacy): `/temperatureprojection/{lon}/{lat}?depth={depth}`
 
 ## Features
 
@@ -35,4 +36,8 @@ The integration uses the Havvarsel API from the Norwegian Institute for Marine R
 - DataUpdateCoordinator for efficient updates
 - Config flow for UI-based setup
 - Proper device and entity registry integration
-- Forecast data as sensor attributes
+- Time series data as sensor attributes
+- Support for 13 different oceanographic variables
+- Dynamic sensor enabling/disabling
+- Only fetches data for enabled sensors (efficient API usage)
+- CF Standard Names for entity IDs
