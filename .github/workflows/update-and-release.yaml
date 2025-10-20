@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main  # Force checkout of main branch to get the updated manifest
         
       # Pack the havvarsel dir as a zip and upload to the release
       - name: 📦 ZIP HAVVARSEL Dir
