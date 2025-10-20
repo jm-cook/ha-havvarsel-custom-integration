@@ -44,7 +44,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - run: echo "(zipped artifact)" > ${{ github.workspace }}/custom_components/havvarsel/README.md
         
       # Pack the havvarsel dir as a zip and upload to the release
       - name: 📦 ZIP HAVVARSEL Dir
