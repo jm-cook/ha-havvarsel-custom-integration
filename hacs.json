@@ -3,7 +3,7 @@
   "country": "NO",
   "render_readme": true,
   "content_in_root": false,
-  "homeassistant": "2025.10.0",
   "zip_release": true,
-  "filename": "havvarsel.zip"
+  "filename": "havvarsel.zip",
+  "hide_default_branch": true
 }
