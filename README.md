@@ -1,8 +1,8 @@
 Navigate to: [My smart home](https://github.com/jm-cook/my-smart-home/tree/main)
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/jm-cook/ha-havvarsel-custom-integration)
-[![Validate with HACS](https://github.com/jm-cook/ha-havvarsel-custom-integration/actions/workflows/validate.yaml/badge.svg)](https://github.com/jm-cook/ha-havvarsel-custom-integration/actions/workflows/validate.yaml)
-[![GitHub Release](https://img.shields.io/github/release/jm-cook/ha-havvarsel-custom-integration.svg)](https://github.com/jm-cook/ha-havvarsel-custom-integration/releases)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/jm-cook/ha-havvarsel)
+[![Validate with HACS](https://github.com/jm-cook/ha-havvarsel/actions/workflows/validate.yaml/badge.svg)](https://github.com/jm-cook/ha-havvarsel/actions/workflows/validate.yaml)
+[![GitHub Release](https://img.shields.io/github/release/jm-cook/ha-havvarsel.svg)](https://github.com/jm-cook/ha-havvarsel/releases)
 ![Project Maintenance](https://img.shields.io/maintenance/yes/2025.svg)
 
 # HA Havvarsel Custom Integration
@@ -18,7 +18,7 @@ This custom integration creates sensors for various oceanographic variables (tem
 2. Click on "Integrations"
 3. Click the three dots in the top right corner
 4. Select "Custom repositories"
-5. Add the URL: `https://github.com/jm-cook/ha-havvarsel-custom-integration`
+5. Add the URL: `https://github.com/jm-cook/ha-havvarsel`
 6. Select category: "Integration"
 7. Click "Add"
 8. Search for "Havvarsel" in HACS
