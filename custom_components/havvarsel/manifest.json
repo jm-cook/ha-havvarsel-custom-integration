@@ -5,10 +5,10 @@
     "@jm-cook"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/jm-cook/ha-havvarsel-custom-integration",
+  "documentation": "https://github.com/jm-cook/ha-havvarsel",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/jm-cook/ha-havvarsel-custom-integration/issues",
+  "issue_tracker": "https://github.com/jm-cook/ha-havvarsel/issues",
   "requirements": [],
   "version": "v2025.10.1"
 }

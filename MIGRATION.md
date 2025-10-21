@@ -71,7 +71,7 @@ havvarsel_nordnes:
 ### For End Users
 
 1. **Install via HACS:**
-   - Add custom repository: `https://github.com/jm-cook/ha-havvarsel-custom-integration`
+   - Add custom repository: `https://github.com/jm-cook/ha-havvarsel`
    - Search for "Havvarsel"
    - Install and restart
 
@@ -248,7 +248,7 @@ Possible improvements:
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/jm-cook/ha-havvarsel-custom-integration/issues
+- GitHub Issues: https://github.com/jm-cook/ha-havvarsel/issues
 - Home Assistant Community: https://community.home-assistant.io/
 
 ## License

@@ -8,7 +8,7 @@
 1. Open HACS in Home Assistant
 2. Go to "Integrations"
 3. Click ⋮ (three dots) → "Custom repositories"
-4. Add: `https://github.com/jm-cook/ha-havvarsel-custom-integration`
+4. Add: `https://github.com/jm-cook/ha-havvarsel`
 5. Category: "Integration"
 6. Search for "Havvarsel" and download
 7. Restart Home Assistant
@@ -178,4 +178,4 @@ default_zoom: 12
 
 - 📖 Full Documentation: [README.md](README.md)
 - 🔄 Migration Guide: [MIGRATION.md](MIGRATION.md)
-- 🐛 Report Issues: [GitHub Issues](https://github.com/jm-cook/ha-havvarsel-custom-integration/issues)
+- 🐛 Report Issues: [GitHub Issues](https://github.com/jm-cook/ha-havvarsel/issues)
